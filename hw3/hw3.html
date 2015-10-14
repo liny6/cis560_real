@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<!--[if gte IE 9 ]><html class="ie ie9 scripts-not-loaded" lang="en"> <![endif]-->
+<!--[if !(IE)]><!--> <html class="not-ie scripts-not-loaded" lang="en"> <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>  acceleration_03.html: CIS 560 2015C Computer Graphics
+</title>
+  <!--[if lte IE 8]> <meta http-equiv=refresh content="0; URL=/ie-8-is-not-supported.html" /> <![endif]-->
+
+  <link href="https://du11hjcvx0uqb.cloudfront.net/dist/images/favicon-e10d657a73.ico" rel="shortcut icon" type="image/vnd.microsoft.icon" />
+  <link href="https://du11hjcvx0uqb.cloudfront.net/dist/images/apple-touch-icon-585e5d997d.png" rel="apple-touch-icon" />
+
+  
+  <link href="https://du11hjcvx0uqb.cloudfront.net/dist/brandable_css/legacy_normal_contrast/bundles/common-617347b1b8.css" media="all" rel="stylesheet" type="text/css" />
+  
+  <meta content="app-id=480883488" name="apple-itunes-app" />
+<meta content="app-id=com.instructure.candroid" name="google-play-app" />
+  
+  
+  <link href="https://www.library.upenn.edu/styles/canvas/overrides.css" media="all" rel="stylesheet" type="text/css" />
+  <script>
+    // listen for any clicks on links that have href="#" and queue them to be fired on dom ready.
+      function _earlyClick(e){
+        var cur = e.target || e.srcElement;
+        while ( cur && cur.ownerDocument ) {
+          if ( cur.getAttribute('href') == '#' ) {
+            e.preventDefault();
+            _earlyClick.clicks = _earlyClick.clicks || [];
+            _earlyClick.clicks.push(cur);
+            break;
+          }
+          cur = cur.parentNode;
+        }
+      }
+      document.addEventListener('click', _earlyClick);
+  </script>
+</head>
+
+<body class="with-left-side files context-course_1287729">
+<noscript>
+  <div role="alert" class="ic-flash-static ic-flash-error">
+    <h1>You need to have JavaScript enabled in order to access this site.</h1>
+  </div>
+</noscript>
+
+
+
+
+<ul role="alert" aria-live="assertive" id="flash_message_holder"></ul>
+<div role="alert" aria-live="assertive" id="flash_screenreader_holder" class="screenreader-only"></div>
+
+<div id="application" >
+
+  <div id="header" class="no-print ">
+    <div id="header-inner">
+      <a href="#content" id="skip_navigation_link">Skip To Content</a>
+      <a id="header-logo" href="https://canvas.upenn.edu/">My Dashboard</a>
+      <b id="header-logo-secondary"></b>
+      <div id="topbar" role="navigation" aria-label="User Menu">
+    <ul id="identity">
+      <li class="user_name"><a href="/about/5126905">YU-CHENG LIN</a></li>
+      <li class="first inbox">
+        <a href="/conversations?">
+          <span>Inbox</span>
+              <b class="unread-messages-count" style="display: none;">0</b>
+        </a>
+      </li>
+      <li><a href="/profile/settings">Settings</a></li>
+    <li class="user_id" style="display: none;">5126905</li>
+    <li class="course_id" style="display: none;">1287729</li>
+    <li id="current_context_code" style="display: none;">course_1287729</li>
+    <li class="user_long_name" style="display: none;">YU-CHENG LIN</li>
+    <li class="logout">
+      <form accept-charset="UTF-8" action="/logout" id="identity-logout-form" method="post"><div style="margin:0;padding:0;display:inline"><input name="utf8" type="hidden" value="&#x2713;" /><input name="_method" type="hidden" value="delete" /><input name="authenticity_token" type="hidden" value="wCqkY169HmmMVU6peRzx52pEfLpgork6kWgfztovQMCyQ8wSB5JkOtY/JNE4K52TPHBPwxaUlnz+X0n+l21yrA==" /></div>
+        <a href="/logout" onclick="document.getElementById(&#x27;identity-logout-form&#x27;).submit(); return false">Logout</a>
+</form>    </li>
+    <li id="identity-help-container">
+      <a href="http://help.instructure.com/" class="support_url help_dialog_trigger" data-track-category="help system" data-track-label="help button">Help</a>
+    </li>
+</ul>
+
+</div>
+
+      
+        <ul role="navigation" id="menu" aria-label="Main Navigation">
+
+    <li id="courses_menu_item" class="menu-item">
+        <a href="/courses" class="menu-item-title">
+
+    Courses &amp; Groups    <span class="menu-item-title-icon"></span> <i class="icon-mini-arrow-down"></i>
+  </a>
+  <div class="menu-item-drop">
+    <table cellspacing="0">
+      <tr>
+        <td class="menu-item-drop-column" id="menu_enrollments">
+  <div class="menu-item-header-container">
+    <span class="menu-item-heading">
+      My Courses
+    </span>
+    <div class="menu-item-customize">
+      <a href="/courses" class="customListOpen">View All or Customize (4)</a>
+    </div>
+  </div>
+  <ul class="menu-item-drop-column-list">
+    <li class="customListItem" data-id="1296643">
+  <a href="/courses/1296643">
+    <span class="name ellipsis" title="MEAM 520 2015C Introduction to Robotics - SRS_MEAM-520-001 2015C">MEAM 520 2015C Introduction to Robotics</span>
+      <span class="subtitle ellipsis enrollment_term menu-item-drop-float-right">2015C (Fall 2015)</span>
+    <span class="subtitle ellipsis">enrolled as: TA</span>
+  </a>
+</li>
+<li class="customListItem" data-id="1278549">
+  <a href="/courses/1278549">
+    <span class="name ellipsis" title="CIS 520 2015C Machine Learning - SRS_CIS-520-001 2015C">CIS 520 2015C Machine Learning</span>
+      <span class="subtitle ellipsis enrollment_term menu-item-drop-float-right">2015C (Fall 2015)</span>
+    <span class="subtitle ellipsis">enrolled as: Student</span>
+  </a>
+</li>
+<li class="customListItem" data-id="1287729">
+  <a href="/courses/1287729">
+    <span class="name ellipsis" title="CIS 560 2015C Computer Graphics - SRS_CIS-560-401 2015C">CIS 560 2015C Computer Graphics</span>
+      <span class="subtitle ellipsis enrollment_term menu-item-drop-float-right">2015C (Fall 2015)</span>
+    <span class="subtitle ellipsis">enrolled as: Student</span>
+  </a>
+</li>
+<li class="customListItem" data-id="1297797">
+  <a href="/courses/1297797">
+    <span class="name ellipsis" title="CIS 581 2015C Comp Vision&amp;Cmptnl Photo - SRS_CIS-581-001 2015C">CIS 581 2015C Comp Vision&amp;Cmptnl Photo</span>
+      <span class="subtitle ellipsis enrollment_term menu-item-drop-float-right">2015C (Fall 2015)</span>
+    <span class="subtitle ellipsis">enrolled as: Student</span>
+  </a>
+</li>
+
+  </ul>
+</td>
+
+        
+        
+      </tr>
+    </table>
+  </div>
+
+    </li>
+    <li id="grades_menu_item" class="menu-item">
+      <a href="/grades" class="menu-item-no-drop">
+        Grades
+      </a>
+    </li>
+    <li id="calendar_menu_item" class="menu-item">
+      <a href="/calendar" class="menu-item-no-drop">
+        Calendar
+      </a>
+    </li>
+    
+  </ul>
+
+    </div>
+  </div>
+
+  <div id="instructure_ajax_error_box">
+    <div style="text-align: right; background-color: #fff;"><a href="#" class="close_instructure_ajax_error_box_link">Close</a></div>
+    <iframe id="instructure_ajax_error_result" src="about:blank" style="border: 0;"></iframe>
+  </div>
+
+  
+
+  <div id="wrapper-container" >
+    <div id="wrapper" >
+    
+          <div id="left-side" class="list-view ">
+              <h1 id="section-tabs-header">
+                SRS_CIS-560-401 2015C
+              </h1>
+              <span id="section-tabs-header-subtitle" class="ellipsis">2015C (Fall 2015)</span>
+            <nav aria-label="context" role="navigation"><ul id="section-tabs"><li class="section"><a class="home" href="/courses/1287729">Home</a></li><li class="section"><a class="context_external_tool_24846" href="/courses/1287729/external_tools/24846">Piazza</a></li><li class="section"><a aria-label="Course Announcements" class="announcements" href="/courses/1287729/announcements">Announcements</a></li><li class="section"><a aria-label="Course Assignments" class="assignments" href="/courses/1287729/assignments">Assignments</a></li><li class="section"><a aria-label="Course Discussions" class="discussions" href="/courses/1287729/discussion_topics">Discussions</a></li><li class="section"><a aria-label="Course Grades" class="grades" href="/courses/1287729/grades">Grades</a></li><li class="section"><a class="people" href="/courses/1287729/users">People</a></li><li class="section"><a class="pages" href="/courses/1287729/wiki">Pages</a></li><li class="section"><a aria-label="Course Files" class="files active" href="/courses/1287729/files">Files</a></li><li class="section"><a class="syllabus" href="/courses/1287729/assignments/syllabus">Syllabus</a></li><li class="section"><a class="quizzes" href="/courses/1287729/quizzes">Quizzes</a></li><li class="section"><a class="conferences" href="/courses/1287729/conferences">Conferences</a></li><li class="section"><a class="collaborations" href="/courses/1287729/collaborations">Collaborations</a></li></ul></nav>
+        </div>
+        <div id="main" >
+          <div id="not_right_side" >
+            <div id="content-wrapper" >
+                <nav aria-label="breadcrumbs" id="breadcrumbs" role="navigation"><ul><li class="home"><a href="/"><span class="ellipsible">      <i class="icon-home"
+         title="My Dashboard">
+        <span class="screenreader-only">My Dashboard</span>
+      </i>
+</span></a></li><li><a href="/courses/1287729"><span class="ellipsible">SRS_CIS-560-401 2015C</span></a></li><li><a href="/courses/1287729/files"><span class="ellipsible">Files</span></a></li><li><a href="/courses/1287729/files/54406917"><span class="ellipsible">acceleration_03.html</span></a></li></ul></nav>
+                
+              <div id="content" role="main" class="container-fluid">
+                    <iframe id="file_content" src="https://cluster46-files.instructure.com/courses/25~1287729/files/25~54406917/course%20files/Homework/hw03/acceleration_03.html?download=1&amp;inline=1&amp;sf_verifier=5901014648de4f3ce61ae1fd6ab117a0&amp;ts=1443815109&amp;user_id=250000005126905" style="width: 100%; height: 400px;"></iframe>
+  <div id="sequence_footer" data-course-id="1287729" data-asset-id="54406917" data-asset-type="File"></div>
+
+
+
+              </div>
+            </div>
+            <div id="right-side-wrapper" >
+              <aside id="right-side" role="complementary">
+                
+              </aside>
+            </div>
+          </div>
+        </div>
+      
+      <footer role="contentinfo" id="footer" >
+  <a href="http://www.instructure.com" class="footer-logo ">
+    <span class="screenreader-only">
+      By Instructure
+    </span>
+  </a>
+  <span
+    id="footer-links"
+    >
+    <a target="_blank" href="http://eepurl.com/1LSkT">User Research</a>
+      <a href="http://help.instructure.com/" class="support_url help_dialog_trigger" data-track-category="help system" data-track-label="help button">Help</a>
+    <a href="https://canvas.upenn.edu/privacy_policy">Privacy policy</a>
+<a href="https://canvas.upenn.edu/terms_of_use">Terms of service</a>
+<a href="http://facebook.com/instructure">Facebook</a>
+<a href="http://twitter.com/instructure">Twitter</a>
+
+  </span>
+</footer>
+
+    </div>
+  </div>
+
+
+
+    <div style="display:none;"><!-- Everything inside of this should always stay hidden -->
+        <a href="/page_views/857a3667-c17b-414b-8dbd-f3da0d47a9d4" id="page_view_update_path">&nbsp;</a>
+        <div id="page_view_id">857a3667-c17b-414b-8dbd-f3da0d47a9d4</div>
+    </div>
+    <div id="cant_record_dialog" style="display: none;">
+  <div>
+    In order to create video or audio recordings your computer needs to be 
+    webcam-enabled.  If you don&#x27;t have a webcam on your computer, you can still
+    record audio-only messages by first installing the Google Video Chat
+    plugin.
+  </div>
+  <div style="text-align: center; font-size: 1.5em; margin: 10px;">
+    <a href="http://www.google.com/chat/video" target="_blank" class="btn">Install the Video Plugin</a>
+  </div>
+  <div class="links" style="text-align: right; font-size: 0.8em; display: none;">
+    <a href="#" class="cant_record_link">Don&#x27;t have a webcam?</a>
+  </div>
+</div>
+  <div id='aria_alerts' class='hide-text affix' role="alert" aria-live="assertive"></div>
+  <script>
+  INST = {"environment":"production","allowMediaComments":true,"kalturaSettings":{"domain":"nv.instructuremedia.com","resource_domain":"nv.instructuremedia.com","rtmp_domain":"fms-prod.instructuremedia.com","partner_id":"9","subpartner_id":"0","player_ui_conf":"0","kcw_ui_conf":"0","upload_ui_conf":"0","max_file_size_bytes":534773760,"do_analytics":false,"hide_rte_button":false,"js_uploader":true},"googleAnalyticsAccount":"UA-9138420-1","disableScribdPreviews":true,"enableHtml5FirstVideos":true,"logPageViews":true,"maxVisibleEditorButtons":3,"editorButtons":[]};
+  ENV = {"ASSET_HOST":"https:\/\/du11hjcvx0uqb.cloudfront.net","active_brand_config":null,"url_to_what_gets_loaded_inside_the_tinymce_editor_css":"https:\/\/du11hjcvx0uqb.cloudfront.net\/dist\/brandable_css\/legacy_normal_contrast\/bundles\/what_gets_loaded_inside_the_tinymce_editor-eea26b0258.css","current_user_id":"5126905","current_user":{"id":"5126905","display_name":"YU-CHENG LIN","avatar_image_url":"https:\/\/secure.gravatar.com\/avatar\/04ed3c630385bd7657756a2cd15c9e2f?s=50\u0026d=https%3A%2F%2Fcanvas.instructure.com%2Fimages%2Fmessages%2Favatar-50.png","html_url":"https:\/\/canvas.upenn.edu\/about\/5126905"},"current_user_roles":["user","student","teacher"],"files_domain":"cluster46-files.instructure.com","DOMAIN_ROOT_ACCOUNT_ID":250000000096678,"use_new_styles":false,"k12":false,"use_high_contrast":false,"SETTINGS":{"open_registration":false},"context_asset_string":"course_1287729","ping_url":"https:\/\/canvas.upenn.edu\/api\/v1\/courses\/1287729\/ping","TIMEZONE":"America\/New_York","CONTEXT_TIMEZONE":"America\/New_York","LOCALE":"en-US","TOURS":[],"badge_counts":{"submissions":0},"notices":[]};
+
+  // TODO: move this out when we have a single require call
+  require = {
+    translate: true,
+    baseUrl: '/optimized',
+    paths: {
+    "common":"compiled\/bundles\/common",
+    "jqueryui":"vendor\/jqueryui",
+    "compiled\/tinymce":"compiled\/tinymce.js?v2",
+    "demo_site":"plugins\/demo_site",
+    "migration_tool":"plugins\/migration_tool",
+    "catalog_provisioner":"plugins\/catalog_provisioner",
+    "instructure_misc_plugin":"plugins\/instructure_misc_plugin",
+    "analytics":"plugins\/analytics",
+    "multiple_root_accounts":"plugins\/multiple_root_accounts",
+    "canvasnet_registration":"plugins\/canvasnet_registration",
+    "compiled\/registration\/main_without_extensions":"compiled\/registration\/main",
+    "compiled\/registration\/main":"compiled\/registration\/main_with_extensions",
+    "compiled\/registration\/signupDialog_without_extensions":"compiled\/registration\/signupDialog",
+    "compiled\/registration\/signupDialog":"compiled\/registration\/signupDialog_with_extensions",
+    "compiled\/bundles\/modules\/account_quota_settings_without_extensions":"compiled\/bundles\/modules\/account_quota_settings",
+    "compiled\/bundles\/modules\/account_quota_settings":"compiled\/bundles\/modules\/account_quota_settings_with_extensions",
+    "canvas_quizzes":"client_apps\/canvas_quizzes",
+    "app\/config\/environments\/production":"empty:"},
+    packages : [{"name":"ic-ajax","location":"bower\/ic-ajax\/dist\/amd"},{"name":"ic-styled","location":"bower\/ic-styled"},{"name":"ic-menu","location":"bower\/ic-menu"},{"name":"ic-tabs","location":"bower\/ic-tabs\/dist\/amd"},{"name":"ic-droppable","location":"bower\/ic-droppable\/dist\/amd"},{"name":"ic-sortable","location":"bower\/ic-sortable\/dist\/amd"},{"name":"ic-modal","location":"bower\/ic-modal\/dist\/amd"},{"name":"ic-lazy-list","location":"bower\/ic-lazy-list"},{"name":"ember-qunit","location":"bower\/ember-qunit\/dist\/amd"}],
+    shim: {
+    'bower/react-router/dist/react-router': {
+      deps: ['react'],
+      exports: 'ReactRouter'
+    },
+    'bower/react-tray/dist/react-tray': {
+      deps: ['react']
+    },
+    'bower/react-modal/dist/react-modal': {
+      deps: ['react']
+    },
+    'bower/react-tokeninput/dist/react-tokeninput': {
+      deps: ['react'],
+    },
+    'bower/react-select-box/dist/react-select-box': {
+      deps: ['react'],
+    },
+    'bower/ember/ember': {
+      deps: ['jquery', 'handlebars'],
+      exports: 'Ember'
+    },
+    'bower/ember-data/ember-data': {
+      deps: ['ember'],
+      exports: 'DS'
+    },
+    'bower/handlebars/handlebars.runtime': {
+      exports: 'Handlebars'
+    },
+    'vendor/FileAPI/FileAPI.min': {
+      deps: ['jquery', 'vendor/FileAPI/config'],
+      exports: 'FileAPI'
+    },
+    'vendor/bootstrap-select/bootstrap-select' : {
+      deps: ['jquery'],
+      exports: '$'
+    },
+    'vendor/jquery.jcrop': {
+      deps: ['jquery'],
+      exports: '$'
+    },
+    'vendor/jquery.smartbanner': {
+      deps: ['jquery'],
+      exports: '$'
+    },
+    'handlebars': {
+      deps: ['bower/handlebars/handlebars.runtime.amd'],
+      exports: 'Handlebars'
+    },
+    'vendor/i18n': {
+      exports: 'I18n'
+    },
+    'vendor/react-infinite-scroll.min' : {
+      deps: ['react'],
+      exports: 'InfiniteScroll'
+    },
+    'bower/tinymce/tinymce' : {
+      exports: 'tinymce'
+    },
+    'bower/axios/dist/axios' : {
+      exports: 'axios'
+    },
+    'bower/tinymce/themes/modern/theme' : {
+      deps: ['bower/tinymce/tinymce'],
+      exports: 'tinymce'
+    }
+  }
+,
+    map: {"canvas_quizzes":{"lodash":"underscore","d3":"vendor\/d3.v3","backbone":"vendor\/backbone","jquery\/instructure_date_and_time":"jquery.instructure_date_and_time","react":"old_unsupported_dont_use_react","react-router":"old_unsupported_dont_use_react-router"}},
+    waitSeconds: 60
+  };
+</script>
+
+<script src="https://du11hjcvx0uqb.cloudfront.net/dist/optimized/vendor/require-749d0c60e9.js" type="text/javascript"></script>
+
+<script src="https://du11hjcvx0uqb.cloudfront.net/dist/optimized/compiled/bundles/common-911c803a3a.js" type="text/javascript"></script>
+<script src="https://du11hjcvx0uqb.cloudfront.net/dist/optimized/compiled/bundles/module_sequence_footer-49d66cc64e.js" type="text/javascript"></script>
+<script src="https://du11hjcvx0uqb.cloudfront.net/dist/optimized/compiled/bundles/file_inline-1d67f1ddb5.js" type="text/javascript"></script>
+<script type="text/javascript">
+//<![CDATA[
+          require(['jquery'], function () {
+            ["https:\/\/www.library.upenn.edu\/scripts\/canvas\/overrides.js"].forEach(function (src) {
+              var s = document.createElement('script');
+              s.src = src;
+              document.body.appendChild(s);
+            });
+          });
+
+//]]>
+</script>
+
+
+
+<script>
+// Determines if the scripts are loaded.
+// When we get everything out of the views, and have a single top-level
+// `require`, this becomes meaningless and will be abandoned.
+(function() {
+  var attempts = 0;
+  var timeout = 10;
+  var check = function() {
+    attempts++;
+    var done = !window.requirejs.s.contexts._.defQueue.length
+    var giveup = attempts === 100; // 1 second
+    if (done || giveup) {
+      var className = document.documentElement.className;
+      document.documentElement.className = className.replace(/scripts-not-loaded/, '');
+      return;
+    }
+    setTimeout(check, timeout);
+  };
+
+  check();
+}).call(this);
+</script>
+
+
+</div> <!-- #application -->
+</body>
+</html>
