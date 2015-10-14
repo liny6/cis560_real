@@ -10,6 +10,7 @@
 #include <raytracing/samplers/stratifiedpixelsampler.h>
 #include <raytracing/samplers/uniformpixelsampler.h>
 #include <tbb/tbb.h>
+#include <QTime>
 
 
 using namespace tbb;
@@ -65,8 +66,7 @@ void MyGL::initializeGL()
     integrator.intersection_engine = &intersection_engine;
     intersection_engine.scene = &scene;
     ResizeToSceneCamera();
-    time_elapsed = 0;
-    connect(&timer1, SIGNAL(timeout()), SLOT(addtime()));
+
 }
 
 void MyGL::resizeGL(int w, int h)
@@ -300,8 +300,9 @@ void MyGL::RaytraceScene()
         });
 
     #else
-        timer1.start(1);
-
+        //timer1.start(1);
+        QTime timer2;
+        timer2.start();
         for(unsigned int i = 0; i < scene.camera.width; i++)
         {
             for(unsigned int j = 0; j < scene.camera.height; j++)
@@ -336,15 +337,8 @@ void MyGL::RaytraceScene()
             }
 
         }
-
-        timer1.stop();
+        qDebug() << "Render took" << timer2.elapsed() << "ms";
+        //timer1.stop();
     #endif
-    qDebug() << time_elapsed;
     scene.film.WriteImage(filepath);
-}
-
-void MyGL::addtime()
-{
-    time_elapsed+=1;
-    qDebug()<<"slot called";
 }

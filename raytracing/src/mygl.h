@@ -50,18 +50,14 @@ public:
 
     void ResizeToSceneCamera();
     void RaytraceScene();
-    MyTimer timer1;
 
 protected:
     void keyPressEvent(QKeyEvent *e);
     void DrawBBX(BVHNode *start_pt); //recursive function to draw all the bounding boxes
     void DrawBBX_mesh(BVHNode *start_pt);
-    long time_elapsed;
 
 
 signals:
     void sig_ResizeToCamera(int,int);
 
-public slots:
-    void addtime();
 };
