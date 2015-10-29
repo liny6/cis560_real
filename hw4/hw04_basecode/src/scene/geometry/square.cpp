@@ -37,13 +37,13 @@ Intersection SquarePlane::GetIntersection(Ray r)
         result.t = glm::distance(result.point, r.origin);
         result.texture_color = Material::GetImageColorInterp(GetUVCoordinates(glm::vec3(P)), material->texture);
         //TODO: Store the tangent and bitangent
-        //for calculating tangent
-        glm::vec3 v010(0.0f, 1.0f, 0.0f);
-        glm::vec4 tangent_prim(glm::normalize(glm::cross(v010, ComputeNormal(glm::vec3(P)))), 0.0f);
-        glm::vec4 bitangent_prim(glm::cross(ComputeNormal(glm::vec3(P)), glm::vec3(tangent_prim)), 0.0f);
+        glm::vec4 tangent_prim(1.0f, 0.0f, 0.0f, 0.0f);
+        glm::vec4 bitangent_prim(0.0f, 1.0f, 0.0f, 0.0f);
         //transform tangent and bitangent
         result.tangent = glm::vec3(transform.T()*tangent_prim);
         result.bitangent = glm::vec3(transform.T()*bitangent_prim);
+        result.tangent = glm::normalize(result.tangent);
+        result.bitangent = glm::normalize(result.bitangent);
         return result;
     }
     return result;

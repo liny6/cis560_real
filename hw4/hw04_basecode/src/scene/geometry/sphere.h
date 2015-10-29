@@ -10,6 +10,7 @@ public:
     Intersection GetIntersection(Ray r);
     virtual glm::vec2 GetUVCoordinates(const glm::vec3 &point);
     virtual glm::vec3 ComputeNormal(const glm::vec3 &P);
+    virtual Intersection GetRandISX(float rand1, float rand2);
     void create();
 
     virtual void ComputeArea();

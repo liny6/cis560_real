@@ -2,7 +2,9 @@
 
 
 Integrator::Integrator():
-    max_depth(5)
+    max_depth(5),
+    mersenne_generator(84738384),
+    unif_distribution(0.0f, 1.0f)
 {
     scene = NULL;
     intersection_engine = NULL;
@@ -29,9 +31,9 @@ glm::vec3 Integrator::TraceRay(Ray r, unsigned int depth)
     Intersection isx; // first intersection hit,
     glm::vec3 Emitted_Light(0,0,0); // stores the color value of emitted light from the point hit
     glm::vec3 Direct_Lighting(0,0,0); //stores the direct lighting
-    float epsilon(0.00001); //small distance;
+    float epsilon(0.001); //small distance;
     glm::vec3 Reflected_Light(0,0,0);// stores the color value of reflected light from the point hit
-    unsigned int num_samples = 20; //number of samples per intersection
+    unsigned int num_samples = 100; //number of samples per intersection
 
     //for BRDF PDF sampling
     //
@@ -43,12 +45,19 @@ glm::vec3 Integrator::TraceRay(Ray r, unsigned int depth)
 
     //first find out who and where I hit
     isx = intersection_engine->GetIntersection(r);
+    if(isx.object_hit == NULL)
+    {
+        return glm::vec3(0, 0, 0);
+    }
     //traverse back the normal to prevent shadow acne
-    isx.point = isx.point - epsilon*isx.normal;
+    isx.point = isx.point + epsilon*isx.normal;
     //pass in isx into EstimateDirectLighting
-    Direct_Lighting = EstimateDirectLighting(isx, num_samples, -r.direction);
+    //Direct_Lighting = EstimateDirectLighting(isx, num_samples, -r.direction);
     //if light source, add my light value to it
-    if(isx.object_hit->material->is_light_source) Emitted_Light = isx.object_hit->material->base_color;
+    if(isx.object_hit->material->is_light_source)
+    {Emitted_Light = isx.object_hit->material->base_color;}
+    else
+    {Direct_Lighting = EstimateDirectLighting(isx, num_samples, -r.direction);}
     /*---------------------*/
 
     return Emitted_Light + Direct_Lighting;
@@ -63,8 +72,8 @@ glm::vec3 Integrator::EstimateDirectLighting(const Intersection &isx, unsigned i
     Intersection light_sample_isx; //randomly sampled intersection on the light source's surface
     glm::vec3 wiW; // incoming ray in world frame
     Ray light_sample_ray;
-    float rand1;
-    float rand2;
+    float rand1 = unif_distribution(mersenne_generator);
+    float rand2 = unif_distribution(mersenne_generator);
 
     Intersection obstruction_test;
 
@@ -79,6 +88,9 @@ glm::vec3 Integrator::EstimateDirectLighting(const Intersection &isx, unsigned i
             wiW = glm::normalize(wiW);
             light_sample_ray = Ray(isx.point, wiW);//remember, the direction is from point in scene to light source
             obstruction_test = intersection_engine->GetIntersection(light_sample_ray);
+            //update random point
+            rand1 = unif_distribution(mersenne_generator);
+            rand2 = unif_distribution(mersenne_generator);
 
             if (obstruction_test.object_hit == scene->lights[i])
             {
@@ -102,11 +114,11 @@ glm::vec3 Integrator::CalculateEnergy(const Intersection &light_sample_isx, cons
     glm::vec3 ray_color(0, 0, 0);
     Material* M = isx.object_hit->material; //material of point hit
     Geometry* L = light_sample_isx.object_hit; //light source
-    Ray reverse_light_sample(light_sample.origin, -light_sample.direction);//this ray is for calculating PDF cuz
+    Intersection isx_light = L->GetIntersection(light_sample);
 
-    ray_color = ComponentMult(L->material->base_color, M->EvaluateScatteredEnergy(isx, woW, light_sample.direction)); // multiply the energy of the light with BRDF reflected energy
-    ray_color = ray_color/L->RayPDF(light_sample_isx, reverse_light_sample)*glm::abs(glm::dot(isx.normal, light_sample.direction)); // and then do the solid angle PDF and the cosine
-
+    ray_color = ComponentMult(L->material->EvaluateScatteredEnergy(isx_light, woW, -light_sample.direction), M->EvaluateScatteredEnergy(isx, woW, light_sample.direction)); // multiply the energy of the light with BRDF reflected energy
+    ray_color = ray_color/L->RayPDF(isx, light_sample)*glm::abs(glm::dot(isx.normal, light_sample.direction)); // and then do the solid angle PDF and the cosine
+    ray_color = glm::clamp(ray_color, 0.0f, 1.0f);
     return ray_color;
 }
 

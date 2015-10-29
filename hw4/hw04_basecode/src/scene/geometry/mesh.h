@@ -12,6 +12,7 @@ public:
     Intersection GetIntersection(Ray r);
     virtual glm::vec2 GetUVCoordinates(const glm::vec3 &point);
     virtual glm::vec3 ComputeNormal(const glm::vec3 &P);
+    virtual Intersection GetRandISX(float rand1, float rand2);
 
     virtual void ComputeArea();
 
@@ -39,6 +40,7 @@ public:
     void LoadOBJ(const QStringRef &filename, const QStringRef &local_path);
     virtual glm::vec2 GetUVCoordinates(const glm::vec3 &point);
     virtual glm::vec3 ComputeNormal(const glm::vec3 &P);
+    virtual Intersection GetRandISX(float rand1, float rand2);
 
     virtual void ComputeArea();
 

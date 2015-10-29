@@ -4,6 +4,7 @@
 #include <raytracing/intersection.h>
 #include <raytracing/intersectionengine.h>
 #include <scene/scene.h>
+#include <random>
 
 class Scene;
 
@@ -28,6 +29,8 @@ public:
 
 protected:
     unsigned int max_depth;//Default value is 5.
+    std::mt19937 mersenne_generator;
+    std::uniform_real_distribution<float> unif_distribution;
 };
 
 class DirectLightingIntegrator: public Integrator

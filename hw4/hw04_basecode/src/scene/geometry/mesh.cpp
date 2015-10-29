@@ -3,16 +3,26 @@
 #include <tinyobj/tiny_obj_loader.h>
 #include <iostream>
 
+float Area(const glm::vec3 &p1, const glm::vec3 &p2, const glm::vec3 &p3)
+{
+    return glm::length(glm::cross(p1 - p2, p3 - p2)) * 0.5f;
+}
+
 void Triangle::ComputeArea()
 {
     //Extra credit to implement this
-    area = 0;
+    area = Area(points[0], points[1], points[2]);
 }
 
 void Mesh::ComputeArea()
 {
     //Extra credit to implement this
+    //sum up all the areas of the trianglos
     area = 0;
+    for (int i = 0; i <faces.count(); i++)
+    {
+        area += faces[i]->area;
+    }
 }
 
 Triangle::Triangle(const glm::vec3 &p1, const glm::vec3 &p2, const glm::vec3 &p3):
@@ -44,15 +54,10 @@ Triangle::Triangle(const glm::vec3 &p1, const glm::vec3 &p2, const glm::vec3 &p3
     uvs[2] = t3;
 }
 
-float Area(const glm::vec3 &p1, const glm::vec3 &p2, const glm::vec3 &p3)
-{
-    return glm::length(glm::cross(p1 - p2, p3 - p2)) * 0.5f;
-}
-
 //Returns the interpolation of the triangle's three normals based on the point inside the triangle that is given.
 glm::vec3 Triangle::GetNormal(const glm::vec3 &P)
 {
-    float A = Area(points[0], points[1], points[2]);
+    float A = area;
     float A0 = Area(points[1], points[2], P);
     float A1 = Area(points[0], points[2], P);
     float A2 = Area(points[0], points[1], P);
@@ -64,11 +69,12 @@ glm::vec4 Triangle::GetNormal(const glm::vec4 &position)
     glm::vec3 result = GetNormal(glm::vec3(position));
     return glm::vec4(result, 0);
 }
-/*
-glm::vec3 Triangle::GetRandPoint()
+
+Intersection Triangle::GetRandISX(float rand1, float rand2)
 {
+    Intersection isx_prim;
     glm::vec3 point_prim(0, 0, 0); // point in primitive frame
-    const int Res = 1000; //resolution
+    glm::vec3 normal_prim(0, 0, 0);
 
     float s1(1.0f);
     float s2(1.0f);
@@ -76,17 +82,22 @@ glm::vec3 Triangle::GetRandPoint()
 
     while(s1 + s2 > 1.0f)
     {
-        s1 = static_cast<float>(rand()%Res)/static_cast<float>(Res);
-        s2 = static_cast<float>(rand()%Res)/static_cast<float>(Res);
+        s1 = s1/2.0f;
+        s2 = s2/2.0f; //hacks, bad random numbers
     }
 
     s3 = (1.0f - s1 - s2);
 
     point_prim = s1*points[0] + s2*points[1] + s3*points[3];
+    normal_prim = s1*normals[0] + s2*normals[1] + s3*normals[3];
 
-    return point_prim;
+    isx_prim.point = point_prim;
+    isx_prim.normal = normal_prim;
+    isx_prim.texture_color = Material::GetImageColorInterp(GetUVCoordinates(glm::vec3(point_prim)), material->texture);
+
+    return isx_prim;
 }
-*/
+
 glm::vec3 Triangle::ComputeNormal(const glm::vec3 &P)
 {}
 glm::vec3 Mesh::ComputeNormal(const glm::vec3 &P)
@@ -112,7 +123,31 @@ Intersection Triangle::GetIntersection(Ray r){
         result.texture_color = Material::GetImageColorInterp(GetUVCoordinates(glm::vec3(P)), material->texture);
         result.object_hit = this;
         //TODO: Store the tangent and bitangent
-        //do this in the mesh
+        glm::vec3 pt1 = points[0];
+        glm::vec3 pt2 = points[1];
+        glm::vec3 pt3 = points[2];
+        glm::vec2 uv1(uvs[0]);
+        glm::vec2 uv2(uvs[1]);
+        glm::vec3 dp1;
+        glm::vec3 dp2;
+
+        if(P == pt1)
+        {
+            pt1 = pt3;
+            uv1 = uvs[2];
+        }
+        if(P == pt2)
+        {
+            pt2 = pt3;
+            uv2 = uvs[2];
+        }
+
+        dp1 = pt1 - P;
+        dp2 = pt2 - P;
+
+        result.tangent = (uv2.y*dp1 - uv1.y*dp2)/(uv2.y*uv1.x - uv1.y*uv2.x);
+        result.bitangent = (dp2 - uv2.x*result.tangent)/uv2.y;
+        //transform this in the mesh
     }
     return result;
 }
@@ -135,12 +170,11 @@ Intersection Mesh::GetIntersection(Ray r){
         closest.object_hit = this;
         closest.t = glm::distance(closest.point, r.origin);//The t used for the closest triangle test was in object space
         //TODO: Store the tangent and bitangent
-        glm::vec3 v010(0.0f, 1.0f, 0.0f);
-        glm::vec4 tangent_prim(glm::normalize(glm::cross(v010, tri->GetNormal(glm::vec3(P)))), 0.0f);
-        glm::vec4 bitangent_prim(glm::cross(tri->GetNormal(glm::vec3(P)), glm::vec3(tangent_prim)), 0.0f);
         //transform tangent and bitangent
-        closest.tangent = glm::vec3(transform.T()*tangent_prim);
-        closest.bitangent = glm::vec3(transform.T()*bitangent_prim);
+        closest.tangent = glm::vec3(transform.T()*glm::vec4(closest.tangent, 0));
+        closest.bitangent = glm::vec3(transform.T()*glm::vec4(closest.bitangent, 0));
+        closest.tangent = glm::normalize(closest.tangent);
+        closest.bitangent = glm::normalize(closest.bitangent);
     }
     return closest;
 }
@@ -263,14 +297,21 @@ void Mesh::create(){
         bufNor.allocate(vert_nor.data(), vert_count * sizeof(glm::vec3));
 }
 
-/*
-glm::vec3 Mesh::GetRandPoint()
+Intersection Mesh::GetRandISX(float rand1, float rand2)
 {
     int num_tri = faces.count();
     int ind = rand()%num_tri; // generate some random index
-    glm::vec4 point_prim(faces[ind]->GetRandPoint(),1);//call the get random on the random triangle
-    return glm::vec3(transform.T()*point_prim); //transform
+    Intersection primitive(faces[ind]->GetRandISX(rand1, rand2));//call the get random isx on the random triangle
+    Intersection isx_final;
+
+    isx_final.point = glm::vec3(transform.T()*glm::vec4(primitive.point, 1.0f));
+    isx_final.normal = glm::vec3(transform.invTransT()*glm::vec4(primitive.normal, 0.0f));
+    isx_final.texture_color = primitive.texture_color;
+    isx_final.object_hit = this;
+    isx_final.t = 0.0f;
+
+    return isx_final;
 }
-*/
+
 //This does nothing because individual triangles are not rendered with OpenGL; they are rendered all together in their Mesh.
 void Triangle::create(){}

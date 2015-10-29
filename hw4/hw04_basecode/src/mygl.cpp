@@ -260,11 +260,13 @@ void MyGL::RaytraceScene()
     delete [] render_threads;
 
 #else
-    StratifiedPixelSampler pixel_sampler(scene.sqrt_samples);
+
+//    StratifiedPixelSampler pixel_sampler(scene.sqrt_samples);
     for(unsigned int i = 0; i < scene.camera.width; i++)
     {
         for(unsigned int j = 0; j < scene.camera.height; j++)
         {
+            /*
             QList<glm::vec2> sample_points = pixel_sampler->GetSamples(i, j);
             glm::vec3 accum_color;
             for(int a = 0; a < sample_points.size(); a++)
@@ -272,7 +274,10 @@ void MyGL::RaytraceScene()
                 glm::vec3 color = integrator.TraceRay(scene.camera.Raycast(sample_points[a]), 0);
                 accum_color += color;
             }
-            scene.film.pixels[i][j] = accum_color / (float)sample_points.size();
+            */
+            glm::vec3 color = integrator.TraceRay(scene.camera.Raycast(static_cast<float>(i), static_cast<float>(j)), 0);
+            //scene.film.pixels[i][j] = accum_color / (float)sample_points.size();
+            scene.film.pixels[i][j] = color;
         }
     }
 #endif

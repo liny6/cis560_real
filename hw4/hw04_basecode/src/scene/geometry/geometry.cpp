@@ -10,9 +10,12 @@ float Geometry::RayPDF(const Intersection &isx, const Ray &ray)
         return 0;
     }
     //Add more here
-    float r (glm::distance(ray.origin, isx.point)); //distance from ray to intersection
-    float cos_theta(glm::dot(isx.normal, ray.direction)); //angle between ray and surface normal
-    float pdf_SA(r*r/cos_theta/isx.object_hit->area);
+    //find the intersection of the ray and myself(light)
+    //intersecting again assures that i get the closer point
+    Intersection with_me = GetIntersection(ray);
+    float r (glm::distance(ray.origin, with_me.point)); //distance from ray to intersection
+    float cos_theta(glm::dot(with_me.normal, -ray.direction)); //angle between ray and surface normal
+    float pdf_SA(r*r/cos_theta/area);
 
     return pdf_SA;
 }

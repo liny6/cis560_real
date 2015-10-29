@@ -10,8 +10,20 @@ static const int SPH_VERT_COUNT = 382;
 
 void Sphere::ComputeArea()
 {
-    //Extra credit to implement this
-    area = 0;
+    //first define the 3 orthogonal vectors in primitive frame
+    glm::vec4 a_prim(0.5f, 0.0f, 0.0f, 0.0f);
+    glm::vec4 b_prim(0.0f, 0.5f, 0.0f, 0.0f);
+    glm::vec4 c_prim(0.0f, 0.0f, 0.5f, 0.0f);
+
+    glm::vec4 a_world(transform.T()*a_prim);
+    glm::vec4 b_world(transform.T()*b_prim);
+    glm::vec4 c_world(transform.T()*c_prim);
+
+    float a(glm::length(glm::vec3(a_world)));
+    float b(glm::length(glm::vec3(b_world)));
+    float c(glm::length(glm::vec3(c_world)));
+
+    area = 4.0f*PI*pow((pow(a*b, 1.6f)+pow(a*c, 1.6f)+pow(b*c, 1.6f))/3.0f, 1.0f/1.6f);
 }
 
 glm::vec3 Sphere::ComputeNormal(const glm::vec3 &P)
@@ -53,6 +65,8 @@ Intersection Sphere::GetIntersection(Ray r)
         //transform tangent and bitangent
         result.tangent = glm::vec3(transform.T()*tangent_prim);
         result.bitangent = glm::vec3(transform.T()*bitangent_prim);
+        result.tangent = glm::normalize(result.tangent);
+        result.bitangent = glm::normalize(result.bitangent);
         return result;
     }
     return result;
@@ -69,27 +83,28 @@ glm::vec2 Sphere::GetUVCoordinates(const glm::vec3 &point)
     float theta = glm::acos(p.y);
     return glm::vec2(1 - phi/TWO_PI, 1 - theta / PI);
 }
-/*
-glm::vec3 Sphere::GetRandPoint()
+
+Intersection Sphere::GetRandISX(float rand1, float rand2)
 {
+    Intersection isx;
+
     glm::vec4 point_prim(0, 0, 0, 1);
     const float r(0.5f);
-    const int Res(1000);
-    float theta(0.0f);
-    float phi(0.0f);
 
-    //use spherical coordinate
-    theta = static_cast<float>(rand()%Res)/static_cast<float>(Res) * 2 * PI;
-    phi = static_cast<float>(rand()%Res)/static_cast<float>(Res) *  PI;
-
-    point_prim.z = r * glm::cos(phi);
-    point_prim.x = r * glm::sin(phi) * glm::cos(theta);
-    point_prim.y = r * glm::sin(phi) * glm::sin(theta);
+    point_prim.z = r * (1 - 2*rand1);
+    point_prim.x = r * glm::cos(TWO_PI*rand2) * glm::sqrt(1 - point_prim.z*point_prim.z);
+    point_prim.y = r * glm::sin(TWO_PI*rand2) * glm::sqrt(1 - point_prim.z*point_prim.z);
     //transform the random point
 
-    return glm::vec3(transform.T()*point_prim);
+    isx.point = glm::vec3(transform.T()*point_prim);
+    isx.normal = glm::vec3(transform.invTransT()*(point_prim - glm::vec4(0, 0, 0, 1)));
+    isx.texture_color = Material::GetImageColorInterp(GetUVCoordinates(glm::vec3(point_prim)), material->texture);
+    isx.object_hit = this;
+    isx.t = 0.0f;
+
+    return isx;
 }
-*/
+
 // These are functions that are only defined in this cpp file. They're used for organizational purposes
 // when filling the arrays used to hold the vertex and index data.
 void createSphereVertexPositions(glm::vec3 (&sph_vert_pos)[SPH_VERT_COUNT])

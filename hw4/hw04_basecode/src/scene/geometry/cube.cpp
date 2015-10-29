@@ -8,7 +8,19 @@ static const int CUB_VERT_COUNT = 24;
 void Cube::ComputeArea()
 {
     //Extra credit to implement this
-    area = 0;
+    glm::vec4 width(0.0f, 1.0f, 0.0f, 0.0f);
+    glm::vec4 length(1.0f, 0.0f, 0.0f, 0.0f);
+    glm::vec4 height(0.0f, 0.0f, 1.0f, 0.0f);
+
+    glm::vec3 w_world(glm::vec3(transform.T()*width));
+    glm::vec3 l_world(glm::vec3(transform.T()*length));
+    glm::vec3 h_world(glm::vec3(transform.T()*height));
+
+    float w = glm::length(w_world);
+    float l = glm::length(l_world);
+    float h = glm::length(h_world);
+
+    area = 2*w*l + 2*w*h + 2*l*h;
 }
 
 glm::vec4 GetCubeNormal(const glm::vec4& P)
@@ -29,6 +41,67 @@ glm::vec4 GetCubeNormal(const glm::vec4& P)
 glm::vec3 Cube::ComputeNormal(const glm::vec3 &P)
 {return glm::vec3(0);}
 
+void Cube::ComputeTangent(const glm::vec4 &P, Intersection* isx)
+{
+    //check which face the intersection in the primitive frame is on
+    glm::vec3 pt1;
+    glm::vec3 pt2;
+    glm::vec3 pt3;
+    glm::vec3 dp1;
+    glm::vec3 dp2;
+    glm::vec2 uv1;
+    glm::vec2 uv2;
+    glm::vec3 Tangent;
+
+    if(fequal(P.x, -0.5f))
+    {
+        pt1 = glm::vec3(-0.5f, 0.0f, 0.0f);
+        pt2 = glm::vec3(-0.5f, 0.0f, 0.1f);
+        pt3 = glm::vec3(-0.5f, 0.1f, 0.0f);
+    }
+    else if(fequal(P.x, 0.5f))
+    {
+        pt1 = glm::vec3(0.5f, 0.0f, 0.0f);
+        pt2 = glm::vec3(0.5f, 0.0f, 0.1f);
+        pt3 = glm::vec3(0.5f, 0.1f, 0.0f);
+    }
+    else if(fequal(P.y, -0.5f))
+    {
+        pt1 = glm::vec3(0.0f, -0.5f, 0.0f);
+        pt2 = glm::vec3(0.0f, -0.5f, 0.1f);
+        pt3 = glm::vec3(0.1f, -0.5f, 0.0f);
+    }
+    else if(fequal(P.y, 0.5f))
+    {
+        pt1 = glm::vec3(0.0f, 0.5f, 0.0f);
+        pt2 = glm::vec3(0.0f, 0.5f, 0.1f);
+        pt3 = glm::vec3(0.1f, 0.5f, 0.0f);
+    }
+    else if(fequal(P.z, -0.5f))
+    {
+        pt1 = glm::vec3(0.0f, 0.0f, -0.5f);
+        pt2 = glm::vec3(0.1f, 0.0f, -0.5f);
+        pt3 = glm::vec3(0.0f, 0.1f, -0.5f);
+    }
+    else if(fequal(P.z, 0.5f))
+    {
+        pt1 = glm::vec3(0.0f, 0.0f, 0.5f);
+        pt2 = glm::vec3(0.1f, 0.0f, 0.5f);
+        pt3 = glm::vec3(0.0f, 0.1f, 0.5f);
+    }
+    //catch corner cases which my intersection is the same as my sample points on the plane
+    if (glm::vec3(P) == pt1) pt1 = pt3;
+    if (glm::vec3(P) == pt2) pt2 = pt3;
+
+    dp1 = pt1 - glm::vec3(P);
+    dp2 = pt2 - glm::vec3(P);
+
+    uv1 = GetUVCoordinates(pt1);
+    uv2 = GetUVCoordinates(pt2);
+
+    isx->tangent = (uv2.y*dp1 - uv1.y*dp2)/(uv2.y*uv1.x - uv1.y*uv2.x);
+    isx->bitangent = (dp2 - uv2.x*isx->tangent)/uv2.y;
+}
 Intersection Cube::GetIntersection(Ray r)
 {
     //Transform the ray
@@ -69,12 +142,12 @@ Intersection Cube::GetIntersection(Ray r)
         result.texture_color = Material::GetImageColorInterp(GetUVCoordinates(glm::vec3(P)), material->texture);
         //TODO: Store the tangent and bitangent
         //for calculating tangent
-        glm::vec3 v010(0.0f, 1.0f, 0.0f);
-        glm::vec4 tangent_prim(glm::normalize(glm::cross(v010, glm::vec3(GetCubeNormal(P)))), 0.0f);
-        glm::vec4 bitangent_prim(glm::cross(glm::vec3(GetCubeNormal(P)), glm::vec3(tangent_prim)), 0.0f);
+        ComputeTangent(P, &result);
         //transform tangent and bitangent
-        result.tangent = glm::vec3(transform.T()*tangent_prim);
-        result.bitangent = glm::vec3(transform.T()*bitangent_prim);
+        result.tangent = glm::vec3(transform.T()*glm::vec4(result.tangent, 0));
+        result.bitangent = glm::vec3(transform.T()*glm::vec4(result.tangent, 0));
+        result.tangent = glm::normalize(result.tangent);
+        result.bitangent = glm::normalize(result.bitangent);
         return result;
     }
     else{//If t_near was greater than t_far, we did not hit the cube
@@ -127,21 +200,20 @@ glm::vec2 Cube::GetUVCoordinates(const glm::vec3 &point)
     }
     return UV;
 }
-/*
-glm::vec3 Cube::GetRandPoint()
+
+Intersection Cube::GetRandISX(float rand1, float rand2)
 {
+    Intersection rand_isx;
     glm::vec4 point_prim(0, 0, 0, 1); // point in primitive frame
+    glm::vec4 normal_prim(0, 0, 0, 0);
     const int faces = 6; // number of faces
-    const int Res = 1000; //resolution
-    const float xyz_min = -0.5f;
-    const float xyz_max = 0.5f;
+    const float xyz_max(0.5f);
+    const float xyz_min(0.5f);
 
     int F = rand()%faces; // determines which face the point falls on
-    int X1 = rand()%Res; //0 - 999
-    int X2 = rand()%Res; //0 - 999
 
-    float x1 = static_cast<float>(X1)/static_cast<float>(Res-1)-0.5f;
-    float x2 = static_cast<float>(X2)/static_cast<float>(Res-1)-0.5f;
+    float x1 = rand1-0.5f;
+    float x2 = rand2-0.5f;
 
     switch(F)
     {
@@ -149,39 +221,49 @@ glm::vec3 Cube::GetRandPoint()
         point_prim.y = xyz_min;
         point_prim.x = x1;
         point_prim.z = x2;
+        normal_prim.y = -1.0f;
         break;
     case 1: //top face
         point_prim.y = xyz_max;
         point_prim.x = x1;
         point_prim.z = x2;
+        normal_prim.y = 1.0f;
         break;
     case 2: //front face
         point_prim.z = xyz_min;
         point_prim.x = x1;
         point_prim.y = x2;
+        normal_prim.z = -1.0f;
         break;
     case 3: // back face
         point_prim.z = xyz_max;
         point_prim.x = x1;
         point_prim.y = x2;
+        normal_prim.z = 1.0f;
         break;
     case 4: //left face
         point_prim.x = xyz_min;
         point_prim.y = x1;
         point_prim.z = x2;
+        normal_prim.x = -1.0f;
         break;
     case 5: //right face
         point_prim.x = xyz_max;
         point_prim.y = x1;
         point_prim.z = x2;
+        normal_prim.x = 1.0f;
         break;
     }
 
     //transform the point to world frame
 
-    return glm::vec3(transform.T()*point_prim);
+    rand_isx.point = glm::vec3(transform.T()*point_prim);
+    rand_isx.normal = glm::vec3(transform.invTransT()*normal_prim);
+    rand_isx.object_hit = this;
+    rand_isx.t = 0.0f;
+    rand_isx.texture_color = Material::GetImageColorInterp(GetUVCoordinates(glm::vec3(point_prim)), material->texture);
 }
-*/
+
 //These are functions that are only defined in this cpp file. They're used for organizational purposes
 //when filling the arrays used to hold the vertex and index data.
 void createCubeVertexPositions(glm::vec3 (&cub_vert_pos)[CUB_VERT_COUNT])

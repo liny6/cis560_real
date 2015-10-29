@@ -19,19 +19,25 @@ Material::Material(const glm::vec3 &color):
 
 
 
-
 glm::vec3 Material::EvaluateScatteredEnergy(const Intersection &isx, const glm::vec3 &woW, const glm::vec3 &wiW, BxDFType flags) const
 {
     //TODO
+    glm::vec3 diffuse_energy;
     glm::vec3 color;
     glm::vec3 wo;
     glm::vec3 wi;
-    //first transform the rays to primitive frame
-    wo = glm::vec3(isx.object_hit->transform.invT()*glm::vec4(woW, 0.0f));
-    wi = glm::vec3(isx.object_hit->transform.invT()*glm::vec4(wiW, 0.0f));
+    //use tangent and bitangent at the intersection to transform the light rays into local frame for brdf
+    //find the rotation matrix from local tangents
+    glm::mat3 R_inv(isx.tangent, isx.bitangent, isx.normal);
+    glm::mat3 R (glm::transpose(R_inv));
+    glm::vec3 wo_local(R*woW);
+    glm::vec3 wi_local(R*wiW);
 
-    //randomly select a brdf
-    bxdfs[rand()%bxdfs.count()]->EvaluateScatteredEnergy(wo, wi);
+    //randomly select a brdf and evaluate energy based on the brdf
+    diffuse_energy = bxdfs[rand()%bxdfs.count()]->EvaluateScatteredEnergy(wo, wi);
+    color.r = diffuse_energy.r*base_color.r*isx.texture_color.r;
+    color.g = diffuse_energy.g*base_color.g*isx.texture_color.g;
+    color.b = diffuse_energy.b*base_color.b*isx.texture_color.b;
     return color;
 }
 
