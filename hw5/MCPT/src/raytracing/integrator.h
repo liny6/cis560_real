@@ -51,4 +51,7 @@ public:
     AllLightingIntegrator(): DirectLightingIntegrator() {}
     virtual glm::vec3 TraceRay(Ray r, unsigned int depth);
     glm::vec3 EstimateIndirectLighting(const Intersection &isx, const unsigned int &n_split, const glm::vec3 &woW);
+    glm::vec3 BxDFIndirectEnergy(const Intersection isx, unsigned int n_split, glm::vec3 woW);
+    glm::vec3 LightIndirectEnergy(const Intersection isx, unsigned int n_split, glm::vec3 woW);
+
 };
