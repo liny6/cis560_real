@@ -23,6 +23,7 @@ void RenderThread::run()
             }
             pixel_color /= samples.size();
             film->pixels[X][Y] = pixel_color;
+            std::cout << "pixel (" << X << ", " << Y <<") Complete\n";
         }
     }
 }

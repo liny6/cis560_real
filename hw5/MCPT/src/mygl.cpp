@@ -183,14 +183,14 @@ void MyGL::SceneLoadDialog()
     //Reset all of our objects
     scene.Clear();
     //integrator = Integrator();
-    integrator = DirectLightingIntegrator();
+    integrator = AllLightingIntegrator();
     intersection_engine = IntersectionEngine();
     //Load new objects based on the XML file chosen.
     xml_reader.LoadSceneFromFile(file, local_path, scene, integrator);
     integrator.scene = &scene;
     integrator.intersection_engine = &intersection_engine;
     intersection_engine.scene = &scene;
-    //ResizeToSceneCamera();
+    ResizeToSceneCamera();
     update();
 }
 
@@ -202,7 +202,7 @@ void MyGL::RaytraceScene()
         return;
     }
 
-//#define MULTITHREADED
+#define MULTITHREADED
 #ifdef MULTITHREADED
     //Set up 16 (max) threads
     unsigned int width = scene.camera.width;
@@ -277,6 +277,10 @@ void MyGL::RaytraceScene()
                 accum_color += color;
             }
             */
+            if (i == 571 && j == 259)
+            {
+                int breakhere = 0;
+            }
             glm::vec3 color = integrator.TraceRay(scene.camera.Raycast(static_cast<float>(i), static_cast<float>(j)), 0);
             //scene.film.pixels[i][j] = accum_color / (float)sample_points.size();
             scene.film.pixels[i][j] = color;

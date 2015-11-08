@@ -32,7 +32,7 @@ private:
 
     Scene scene;
     XMLReader xml_reader;
-    DirectLightingIntegrator integrator;
+    AllLightingIntegrator integrator;
     IntersectionEngine intersection_engine;
 
 public:

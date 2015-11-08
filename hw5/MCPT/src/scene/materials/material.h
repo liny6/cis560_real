@@ -22,14 +22,14 @@ public:
     virtual glm::vec3 EvaluateScatteredEnergy(const Intersection &isx, const glm::vec3 &woW, const glm::vec3 &wiW, float &pdf_ret, BxDFType flags = BSDF_ALL) const;
 
     //Given an intersection with some Geometry, generate a world-space wi then evaluate the scattered energy along the world-space wo.
-    virtual glm::vec3 SampleAndEvaluateScatteredEnergy(const Intersection &isx, const glm::vec3 &woW, glm::vec3 &wiW_ret, float &pdf_ret, BxDFType flags = BSDF_ALL) const;
+    virtual glm::vec3 SampleAndEvaluateScatteredEnergy(const Intersection &isx, const glm::vec3 &woW, glm::vec3 &wiW_ret, float &pdf_ret, float rand1, float rand2, BxDFType flags = BSDF_ALL) const;
 
     //Given an intersection with some Geometry and a number of samples to take, generate a set of N random vec2s.
     //Then, pass this information to each BxDF that matches the input flags and return their combined EHSE results
-    virtual glm::vec3 EvaluateHemisphereScatteredEnergy(const Intersection &isx, const glm::vec3 &wo, int num_samples, BxDFType flags = BSDF_ALL) const;
+    virtual glm::vec3 EvaluateHemisphereScatteredEnergy(const Intersection &isx, const glm::vec3 &wo, int num_samples, glm::vec2* samples, BxDFType flags = BSDF_ALL) const;
 
     //A shorthand way of calling EvaluateHemisphereScatteredEnergy
-    glm::vec3 Rho(const Intersection &isx, const glm::vec3 &wo, int num_samples, BxDFType flags = BSDF_ALL) const {return EvaluateHemisphereScatteredEnergy(isx, wo, num_samples, flags);}
+    glm::vec3 Rho(const Intersection &isx, const glm::vec3 &wo, int num_samples, glm::vec2* samples, BxDFType flags = BSDF_ALL) const {return EvaluateHemisphereScatteredEnergy(isx, wo, num_samples, samples, flags);}
 
 
 
@@ -51,5 +51,6 @@ public:
     QImage* texture;   //When non-null, the Material has a texture assigned to it.
                     //A Material's texture is multiplied with its base_color to determine its color at a given point in space.
     QImage* normal_map;
+
 
 };

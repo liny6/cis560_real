@@ -44,3 +44,11 @@ public:
     float MIS(float f_PDF, float g_PDF, unsigned int n_f, unsigned int n_g);
 
 };
+
+class AllLightingIntegrator: public DirectLightingIntegrator
+{
+public:
+    AllLightingIntegrator(): DirectLightingIntegrator() {}
+    virtual glm::vec3 TraceRay(Ray r, unsigned int depth);
+    glm::vec3 EstimateIndirectLighting(const Intersection &isx, const unsigned int &n_split, const glm::vec3 &woW);
+};

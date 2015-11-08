@@ -22,12 +22,7 @@ Material::Material(const glm::vec3 &color):
 glm::vec3 Material::EvaluateScatteredEnergy(const Intersection &isx, const glm::vec3 &woW, const glm::vec3 &wiW,float &pdf_ret, BxDFType flags) const
 {
     //TODO
-    if (isx.object_hit->name != "Floor")
-    {
-        int breakhere = 0;
-    }
     glm::vec3 energy;
-    glm::vec3 color;
     //use tangent and bitangent at the intersection to transform the light rays into local frame for brdf
     //find the rotation matrix from local tangents
     glm::mat3 R_inv(isx.tangent, isx.bitangent, isx.normal);
@@ -38,41 +33,30 @@ glm::vec3 Material::EvaluateScatteredEnergy(const Intersection &isx, const glm::
 
     //randomly select a brdf and evaluate energy based on the brdf
     energy = bxdfs[bxdfchoice]->EvaluateScatteredEnergy(wo_local, wi_local);
-    color.r = energy.r*base_color.r*isx.texture_color.r;
-    color.g = energy.g*base_color.g*isx.texture_color.g;
-    color.b = energy.b*base_color.b*isx.texture_color.b;
     pdf_ret = bxdfs[bxdfchoice]->PDF(wo_local, wi_local);
-    return color;
+    return energy;
 }
 
-glm::vec3 Material::SampleAndEvaluateScatteredEnergy(const Intersection &isx, const glm::vec3 &woW, glm::vec3 &wiW_ret, float &pdf_ret, BxDFType flags) const
+glm::vec3 Material::SampleAndEvaluateScatteredEnergy(const Intersection &isx, const glm::vec3 &woW, glm::vec3 &wiW_ret, float &pdf_ret, float rand1, float rand2, BxDFType flags) const
 {
     //TODO
     glm::vec3 energy;
-    glm::vec3 color;
     //use tangent and bitangent at the intersection to transform the light rays into local frame for brdf
     //find the rotation matrix from local tangents
     glm::mat3 R_inv(isx.tangent, isx.bitangent, isx.normal);
     glm::mat3 R (glm::transpose(R_inv));
     glm::vec3 wo_local(glm::normalize(R*woW));
     int bxdfchoice = rand()%bxdfs.count();
-    int resolution = 1000000;
-    float rand1 = static_cast<float>(rand()%resolution)/static_cast<float>(resolution);
-    float rand2 = static_cast<float>(rand()%resolution)/static_cast<float>(resolution);
 
     energy = bxdfs[bxdfchoice]->SampleAndEvaluateScatteredEnergy(wo_local, wiW_ret, rand1, rand2, pdf_ret);
 
     //transform wi back to world space
     wiW_ret = R_inv*wiW_ret;
 
-    color.r = base_color.r*energy.r*isx.texture_color.r;
-    color.g = base_color.g*energy.g*isx.texture_color.g;
-    color.b = base_color.b*energy.b*isx.texture_color.b;
-
-    return color;
+    return energy;
 }
 
-glm::vec3 Material::EvaluateHemisphereScatteredEnergy(const Intersection &isx, const glm::vec3 &wo, int num_samples, BxDFType flags) const
+glm::vec3 Material::EvaluateHemisphereScatteredEnergy(const Intersection &isx, const glm::vec3 &wo, int num_samples, glm::vec2* samples, BxDFType flags) const
 {
     //TODO
     return glm::vec3(0);
