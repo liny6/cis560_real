@@ -145,9 +145,8 @@ glm::vec3 DirectLightingIntegrator::TraceRay(Ray r, unsigned int depth)
     glm::vec3 Emitted_Light(0,0,0); // stores the color value of emitted light from the point hit
     glm::vec3 Direct_Lighting(0,0,0); //stores the direct lighting
     float epsilon(0.001); //small distance;
-    glm::vec3 Reflected_Light(0,0,0);// stores the color value of reflected light from the point hit
-    unsigned int n_light = 10; //number of light samples
-    unsigned int n_brdf = 10; //number of brdf samples
+    unsigned int n_light = 100; //number of light samples
+    unsigned int n_brdf = 100; //number of brdf samples
 
     //for BRDF PDF sampling
     //
@@ -186,7 +185,6 @@ glm::vec3 DirectLightingIntegrator::EstimateDirectLighting(const Intersection &i
 {
     //for Light source sampling
     //QList<glm::vec3> light_sample_pts;
-    glm::vec3 light_sampling_temp(0,0,0);
     glm::vec3 brdf_sampling_final(0,0,0);
     glm::vec3 light_sampling_final(0,0,0);
     glm::vec3 color_final(0,0,0);
@@ -195,40 +193,43 @@ glm::vec3 DirectLightingIntegrator::EstimateDirectLighting(const Intersection &i
     Ray light_sample_ray;
     float rand1 = unif_distribution(mersenne_generator);
     float rand2 = unif_distribution(mersenne_generator);
+    int light_choice = 0;
+
 
     Intersection obstruction_test;
 
     //for all light sources
-    for (int i = 0; i < scene->lights.count(); i++)
+    //for (int i = 0; i < scene->lights.count(); i++)
+    //{
+    //light source sampling
+    for(unsigned int j = 0; j < n_light; j++)
     {
-        //light source sampling
-        for(unsigned int j = 0; j < n_light; j++)
+        light_choice = rand()%scene->lights.count();
+        light_sample_isx = scene->lights[light_choice]->GetRandISX(rand1, rand2); //take 1 sample point(intersection) on the light source for now
+        wiW = light_sample_isx.point - isx.point; //ray direction going from world point to light source
+        light_sample_isx.t = glm::length(wiW);
+        wiW = glm::normalize(wiW);
+        light_sample_ray = Ray(isx.point, wiW);//remember, the direction is from point in scene to light source
+        obstruction_test = intersection_engine->GetIntersection(light_sample_ray);
+        //update random point
+        rand1 = unif_distribution(mersenne_generator);
+        rand2 = unif_distribution(mersenne_generator);
+
+        if (obstruction_test.object_hit == scene->lights[light_choice])
         {
-            light_sample_isx = scene->lights[i]->GetRandISX(rand1, rand2); //take 1 sample point(intersection) on the light source for now
-            wiW = light_sample_isx.point - isx.point; //ray direction going from world point to light source
-            light_sample_isx.t = glm::length(wiW);
-            wiW = glm::normalize(wiW);
-            light_sample_ray = Ray(isx.point, wiW);//remember, the direction is from point in scene to light source
-            obstruction_test = intersection_engine->GetIntersection(light_sample_ray);
-            //update random point
-            rand1 = unif_distribution(mersenne_generator);
-            rand2 = unif_distribution(mersenne_generator);
-
-            if (obstruction_test.object_hit == scene->lights[i])
-            {
-                light_sampling_temp = light_sampling_temp + LightPDFEnergy(obstruction_test, isx, light_sample_ray, woW, n_light, n_brdf);
-            }
-            else
-            {
-                //the ray contributes zero energy
-            }
+            light_sampling_final = light_sampling_final + LightPDFEnergy(obstruction_test, isx, light_sample_ray, woW, n_light, n_brdf);
         }
-
-
-        light_sampling_temp = light_sampling_temp/static_cast<float>(n_light); //divide by samples taken
-        light_sampling_final = light_sampling_final + light_sampling_temp; // accumulate energy per high source
-        light_sampling_temp = glm::vec3(0, 0, 0);// zero out color_temp for the next light source
+        else
+        {
+            //the ray contributes zero energy
+        }
     }
+
+
+    light_sampling_final = light_sampling_final/static_cast<float>(n_light); //divide by samples taken
+    //light_sampling_final = light_sampling_final + light_sampling_temp; // accumulate energy per high source
+    //light_sampling_temp = glm::vec3(0, 0, 0);// zero out color_temp for the next light source
+    //}
 
     //brdf sampling
     for(unsigned int j = 0; j < n_brdf; j++)
@@ -237,8 +238,6 @@ glm::vec3 DirectLightingIntegrator::EstimateDirectLighting(const Intersection &i
     }
     brdf_sampling_final = brdf_sampling_final/static_cast<float>(n_brdf);
     color_final = brdf_sampling_final + light_sampling_final;
-    //clamp color_final
-    glm::clamp(color_final, 0.0f, 1.0f);
     return color_final;
 }
 
@@ -258,8 +257,11 @@ glm::vec3 DirectLightingIntegrator::LightPDFEnergy(const Intersection &light_sam
     float dummy;
 
     glm::vec3 M_energy(M->EvaluateScatteredEnergy(isx, woW, light_sample.direction, brdfPDF));
+    //terminate early if brdf pdf is zero;
+    if (brdfPDF <= 0.0f) return ray_color;
+
     glm::vec3 L_energy(L->material->EvaluateScatteredEnergy(light_sample_isx, woW, -light_sample.direction, dummy));
-    float W = MIS(lightPDF, brdfPDF, n_light, n_brdf); //MIS power heuristic weighing function
+    float W = MIS(lightPDF, brdfPDF); //MIS power heuristic weighing function
 
     ray_color = ComponentMult(L_energy, M_energy); // multiply the energy of the light with BRDF reflected energy
     ray_color = ComponentMult(ComponentMult(ray_color, M->base_color), isx.texture_color);
@@ -283,6 +285,9 @@ glm::vec3 DirectLightingIntegrator::BxDFPDFEnergy(const Intersection &isx, const
     Intersection light_isx = intersection_engine->GetIntersection(shadow_feeler);
     Geometry* L; //this holds the intersected light source
 
+
+    //terminate early if brdf pdf is zero;
+    if (brdfPDF <= 0.0f) return ray_color;
     if (light_isx.object_hit == NULL)//if ray didnt hit anything
         return ray_color;
     if (light_isx.object_hit->material->is_light_source)
@@ -294,7 +299,7 @@ glm::vec3 DirectLightingIntegrator::BxDFPDFEnergy(const Intersection &isx, const
             return ray_color;
         }
         glm::vec3 L_energy(L->material->EvaluateScatteredEnergy(light_isx, woW, -shadow_feeler.direction, dummy));
-        float W = MIS(brdfPDF, lightPDF, n_brdf, n_light);
+        float W = MIS(brdfPDF, lightPDF);
 
         ray_color = ComponentMult(L_energy, M_energy);
         ray_color = ComponentMult(ComponentMult(ray_color, M->base_color), isx.texture_color);
@@ -308,9 +313,9 @@ glm::vec3 DirectLightingIntegrator::BxDFPDFEnergy(const Intersection &isx, const
 
 }
 
-float DirectLightingIntegrator::MIS(float f_PDF, float g_PDF, unsigned int n_f, unsigned int n_g)
+float DirectLightingIntegrator::MIS(float f_PDF, float g_PDF)
 {
-    return glm::pow((n_f*f_PDF), 2.0f)/(glm::pow(n_f*f_PDF, 2.0f) + glm::pow(n_g*g_PDF, 2.0f));
+    return glm::pow((1.0f*f_PDF), 2.0f)/(glm::pow(1.0f*f_PDF, 2.0f) + glm::pow(1.0f*g_PDF, 2.0f));
 }
 
 glm::vec3 AllLightingIntegrator::TraceRay(Ray r, unsigned int depth)
@@ -329,9 +334,9 @@ glm::vec3 AllLightingIntegrator::TraceRay(Ray r, unsigned int depth)
     glm::vec3 Direct_Lighting(0,0,0); //stores the direct lighting
     float epsilon(0.001); //small distance;
     glm::vec3 Indirect_Lighting(0,0,0);// stores the color value of reflected light from the point hit
-    unsigned int n_light = 10; //number of light samples
-    unsigned int n_brdf = 10; //number of brdf samples
-    unsigned int n_indirect = 10; //number of sample splits
+    unsigned int n_light = 50; //number of light samples
+    unsigned int n_brdf = 50; //number of brdf samples
+    unsigned int n_indirect = 50; //number of sample splits
 
     //for BRDF PDF sampling
     //
@@ -385,7 +390,7 @@ glm::vec3 AllLightingIntegrator::EstimateIndirectLighting(const Intersection &is
     return color_accum;
 }
 
-glm::vec3 AllLightingIntegrator::BxDFIndirectEnergy(const Intersection isx, unsigned int n_split, glm::vec3 woW)
+glm::vec3 AllLightingIntegrator::BxDFIndirectEnergy(const Intersection &isx, unsigned int n_split, const glm::vec3 &woW)
 {
     int depth = 0;
     Intersection isx_temp = isx;//reflected intersection
@@ -434,7 +439,7 @@ glm::vec3 AllLightingIntegrator::BxDFIndirectEnergy(const Intersection isx, unsi
         wo_temp = -wi_temp; //now the old incoming ray is the outgoing ray for the new intersection
         L_temp = EstimateDirectLighting(isx_light, n_light, n_brdf, wo_temp); //the direct lighting towards the isx
         pdf_light_temp = isx_light.object_hit->RayPDF(isx_light, sampler);
-        W = MIS(pdf_temp_brdf, pdf_light_temp, n_split, n_split);
+        W = MIS(pdf_temp_brdf, pdf_light_temp);
         //this is BRDF sampling so use the illumination equation for BRDF sampling to accumulate color
         color_temp = ComponentMult(brdf_energy_accum, L_temp);
         color_temp = ComponentMult(ComponentMult(color_temp, M_temp->base_color), isx_temp.texture_color);
@@ -456,7 +461,7 @@ glm::vec3 AllLightingIntegrator::BxDFIndirectEnergy(const Intersection isx, unsi
     return color_accum;
 }
 
-glm::vec3 AllLightingIntegrator::LightIndirectEnergy(const Intersection isx, unsigned int n_split, glm::vec3 woW)
+glm::vec3 AllLightingIntegrator::LightIndirectEnergy(const Intersection &isx, unsigned int n_split, const glm::vec3 &woW)
 {
     int depth = 0;
     Intersection isx_temp = isx;//reflected intersection
@@ -524,7 +529,7 @@ glm::vec3 AllLightingIntegrator::LightIndirectEnergy(const Intersection isx, uns
         //find the direct lighting irradiance of this point towards my original intersection
         wo_temp = -wi_temp; //now the old incoming ray is the outgoing ray for the new intersection
         L_temp = EstimateDirectLighting(isx_light, n_light, n_brdf, wo_temp);
-        W = MIS(pdf_light_temp, pdf_temp_brdf, n_split, n_split);
+        W = MIS(pdf_light_temp, pdf_temp_brdf);
         //this is light source sampling so use the illumination equation for BRDF sampling to accumulate color
         color_temp = ComponentMult(brdf_energy_accum, L_temp);
         color_temp = ComponentMult(ComponentMult(color_temp, M_temp->base_color), isx_temp.texture_color);

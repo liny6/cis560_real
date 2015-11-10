@@ -41,7 +41,7 @@ public:
     glm::vec3 EstimateDirectLighting(const Intersection &isx, unsigned int &n_f, unsigned int &n_g, const glm::vec3 &woW);
     glm::vec3 LightPDFEnergy(const Intersection &light_sample_isx, const Intersection &isx, const Ray &light_sample, const glm::vec3 &woW, unsigned int n_light, unsigned int n_brdf);
     glm::vec3 BxDFPDFEnergy(const Intersection &isx, const glm::vec3 &woW, unsigned int n_light, unsigned int n_brdf);
-    float MIS(float f_PDF, float g_PDF, unsigned int n_f, unsigned int n_g);
+    float MIS(float f_PDF, float g_PDF);
 
 };
 
@@ -51,7 +51,7 @@ public:
     AllLightingIntegrator(): DirectLightingIntegrator() {}
     virtual glm::vec3 TraceRay(Ray r, unsigned int depth);
     glm::vec3 EstimateIndirectLighting(const Intersection &isx, const unsigned int &n_split, const glm::vec3 &woW);
-    glm::vec3 BxDFIndirectEnergy(const Intersection isx, unsigned int n_split, glm::vec3 woW);
-    glm::vec3 LightIndirectEnergy(const Intersection isx, unsigned int n_split, glm::vec3 woW);
+    glm::vec3 BxDFIndirectEnergy(const Intersection &isx, unsigned int n_split, const glm::vec3 &woW);
+    glm::vec3 LightIndirectEnergy(const Intersection &isx, unsigned int n_split, const glm::vec3 &woW);
 
 };

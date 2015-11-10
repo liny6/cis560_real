@@ -46,12 +46,12 @@ float SpecularReflectionBxDF::PDF(const glm::vec3 &wo, const glm::vec3 &wi) cons
     glm::vec3 N(0.0f, 0.0f, 1.0f);
     float residule = glm::length(glm::normalize(wo+wi) - N);
 
-    if(fequal(residule, 0.0f))
+    if(residule <= 0.0001)
     {
-        return 0.0000001f;//only takes up a tiny fraction of the solid angle
+        return 1.0f;//perfectly specular
     }
     else
     {
-        return 1.0f;
+        return 0.0f;
     }
 }

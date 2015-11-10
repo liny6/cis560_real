@@ -54,12 +54,10 @@ float BxDF::PDF(const glm::vec3 &wo, const glm::vec3 &wi) const
     glm::vec3 default_normal(0, 0, 1);
     //wi should be normalized coming in, if not things go to shit
     float cos_theta_i(glm::dot(wi, default_normal));
-    //float cos_theta_o(glm::dot(wo, default_normal));
-    //
-    float sin_theta_i(glm::length(glm::cross(wi, default_normal)));
+    //float sin_theta_i(glm::length(glm::cross(wi, default_normal)));
     //float sin_theta_o(glm::length(glm::cross(wo, default_normal)));
     //find the pdf of the ray coming in and ray coming out
-    float pdf_i(1/PI*cos_theta_i*sin_theta_i);
+    float pdf_i(1/PI*cos_theta_i);
     //float pdf_o(1/PI*cos_theta_o*sin_theta_o);
     //in this case coming in and going out is independent
     //float pdf_result(pdf_i*pdf_o);
